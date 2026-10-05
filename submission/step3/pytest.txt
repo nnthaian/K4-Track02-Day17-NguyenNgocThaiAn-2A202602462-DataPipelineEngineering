@@ -1,0 +1,47 @@
+...F.......FF.....................                                       [100%]
+================================== FAILURES ===================================
+______________________ test_cdc_delete_becomes_tombstone ______________________
+
+built = (<_duckdb.DuckDBPyConnection object at 0x000001FFC2BA2670>, {'gold': 'ee385fc0751969d48b07035ec8744d26', 'gold_doc_chu...8', 'gold_feature_daily': '8630e04a61d10aa963b7a49e148926b0', 'gold_training_set': 'bd80ed585cda944fc9f9d63a63f00316'})
+
+    def test_cdc_delete_becomes_tombstone(built):
+        con, _ = built
+>       assert rows(con, "SELECT is_deleted, user_id, subject, body FROM silver_tickets "
+                         "WHERE ticket_id = 'T-97'") == [(True, None, None, None)]
+E       AssertionError: assert [(False, 'u06...ệu của tôi.')] == [(True, None, None, None)]
+E         
+E         At index 0 diff: (False, 'u06', 'Yêu cầu xoá tài khoản', 'Tôi là Nguyễn Văn An, email <EMAIL>, sđt <PHONE>. Xin xoá toàn bộ dữ liệu của tôi.') != (True, None, None, None)
+E         Use -v to get more diff
+
+tests\test_contracts.py:45: AssertionError
+_________________ test_deleted_ticket_leaves_training_and_rag _________________
+
+built = (<_duckdb.DuckDBPyConnection object at 0x000001FFC2BA2670>, {'gold': 'ee385fc0751969d48b07035ec8744d26', 'gold_doc_chu...8', 'gold_feature_daily': '8630e04a61d10aa963b7a49e148926b0', 'gold_training_set': 'bd80ed585cda944fc9f9d63a63f00316'})
+
+    def test_deleted_ticket_leaves_training_and_rag(built):
+        con, _ = built
+>       assert rows(con, """SELECT count(*) FROM gold_training_set
+                            WHERE snapshot_version = 'v2026-08-16' AND ticket_id = 'T-97'""") == [(0,)]
+E       assert [(1,)] == [(0,)]
+E         
+E         At index 0 diff: (1,) != (0,)
+E         Use -v to get more diff
+
+tests\test_contracts.py:98: AssertionError
+___________________________ test_doc_chunks_unique ____________________________
+
+built = (<_duckdb.DuckDBPyConnection object at 0x000001FFC2BA2670>, {'gold': 'ee385fc0751969d48b07035ec8744d26', 'gold_doc_chu...8', 'gold_feature_daily': '8630e04a61d10aa963b7a49e148926b0', 'gold_training_set': 'bd80ed585cda944fc9f9d63a63f00316'})
+
+    def test_doc_chunks_unique(built):
+        con, _ = built
+        n, n_distinct = con.execute("""SELECT count(*), count(DISTINCT (ticket_id, chunk_idx))
+                                       FROM gold_doc_chunks""").fetchone()
+>       assert n == n_distinct == 8
+E       assert 9 == 8
+
+tests\test_contracts.py:107: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_contracts.py::test_cdc_delete_becomes_tombstone - Assertion...
+FAILED tests/test_contracts.py::test_deleted_ticket_leaves_training_and_rag
+FAILED tests/test_contracts.py::test_doc_chunks_unique - assert 9 == 8
+3 failed, 31 passed in 7.67s

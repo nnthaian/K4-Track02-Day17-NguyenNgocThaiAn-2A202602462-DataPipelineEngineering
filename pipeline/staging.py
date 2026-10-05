@@ -37,7 +37,12 @@ def ticket_changes_sql(upto: str | None = None, batch: str | None = None) -> str
     return f"""
     SELECT * FROM (
         SELECT
-            j->'value'->'after'->>'ticket_id'                       AS ticket_id,
+            -- Deletes have no after image: retain the key and CDC ordering,
+            -- but keep reading PII from after so deleted values become NULL.
+            CASE WHEN _op = 'd' THEN
+                coalesce(j->'value'->'before'->>'ticket_id',
+                         j->'key'->>'ticket_id')
+            ELSE j->'value'->'after'->>'ticket_id' END             AS ticket_id,
             _op,
             (j->'value'->'source'->>'lsn')::BIGINT                  AS _lsn,
             make_timestamp((j->'value'->'source'->>'ts_ms')::BIGINT * 1000) AS _changed_at,

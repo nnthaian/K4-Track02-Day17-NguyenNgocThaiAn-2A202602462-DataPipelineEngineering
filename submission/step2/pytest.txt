@@ -1,0 +1,102 @@
+...F..FFF..FF...........F.........                                       [100%]
+================================== FAILURES ===================================
+______________________ test_cdc_delete_becomes_tombstone ______________________
+
+built = (<_duckdb.DuckDBPyConnection object at 0x000001FF32E01030>, {'gold': '627179219877959b5684f59316f846df', 'gold_doc_chu...8', 'gold_feature_daily': 'c50b8851affeb418fcb824e65099d9be', 'gold_training_set': 'bd80ed585cda944fc9f9d63a63f00316'})
+
+    def test_cdc_delete_becomes_tombstone(built):
+        con, _ = built
+>       assert rows(con, "SELECT is_deleted, user_id, subject, body FROM silver_tickets "
+                         "WHERE ticket_id = 'T-97'") == [(True, None, None, None)]
+E       AssertionError: assert [(False, 'u06...ệu của tôi.')] == [(True, None, None, None)]
+E         
+E         At index 0 diff: (False, 'u06', 'Yêu cầu xoá tài khoản', 'Tôi là Nguyễn Văn An, email <EMAIL>, sđt <PHONE>. Xin xoá toàn bộ dữ liệu của tôi.') != (True, None, None, None)
+E         Use -v to get more diff
+
+tests\test_contracts.py:45: AssertionError
+______________ test_feature_daily_reconciles_with_full_recompute ______________
+
+built = (<_duckdb.DuckDBPyConnection object at 0x000001FF32E01030>, {'gold': '627179219877959b5684f59316f846df', 'gold_doc_chu...8', 'gold_feature_daily': 'c50b8851affeb418fcb824e65099d9be', 'gold_training_set': 'bd80ed585cda944fc9f9d63a63f00316'})
+
+    def test_feature_daily_reconciles_with_full_recompute(built):
+        con, _ = built
+>       assert query_checksum(con, "SELECT * FROM gold_feature_daily") == \
+            query_checksum(con, feature_daily_full_recompute_sql())
+E       AssertionError: assert 'c50b8851affe...824e65099d9be' == '8630e04a61d1...7a49e148926b0'
+E         
+E         - 8630e04a61d10aa963b7a49e148926b0
+E         + c50b8851affeb418fcb824e65099d9be
+
+tests\test_contracts.py:67: AssertionError
+__________________ test_late_events_land_in_their_event_day ___________________
+
+built = (<_duckdb.DuckDBPyConnection object at 0x000001FF32E01030>, {'gold': '627179219877959b5684f59316f846df', 'gold_doc_chu...8', 'gold_feature_daily': 'c50b8851affeb418fcb824e65099d9be', 'gold_training_set': 'bd80ed585cda944fc9f9d63a63f00316'})
+
+    def test_late_events_land_in_their_event_day(built):
+        con, _ = built
+>       assert rows(con, """SELECT n_events, n_clicks, n_feedback_down FROM gold_feature_daily
+                            WHERE user_id = 'u05' AND event_date = DATE '2026-08-12'""") == [(5, 3, 1)]
+E       assert [(2, 1, 0)] == [(5, 3, 1)]
+E         
+E         At index 0 diff: (2, 1, 0) != (5, 3, 1)
+E         Use -v to get more diff
+
+tests\test_contracts.py:73: AssertionError
+___________________ test_lookback_covers_measured_lateness ____________________
+
+built = (<_duckdb.DuckDBPyConnection object at 0x000001FF32E01030>, {'gold': '627179219877959b5684f59316f846df', 'gold_doc_chu...8', 'gold_feature_daily': 'c50b8851affeb418fcb824e65099d9be', 'gold_training_set': 'bd80ed585cda944fc9f9d63a63f00316'})
+
+    def test_lookback_covers_measured_lateness(built):
+        con, _ = built
+>       assert config.LOOKBACK_DAYS >= lateness_profile(con)["p99_days"]
+E       assert 0 >= 3
+E        +  where 0 = config.LOOKBACK_DAYS
+
+tests\test_contracts.py:79: AssertionError
+_________________ test_deleted_ticket_leaves_training_and_rag _________________
+
+built = (<_duckdb.DuckDBPyConnection object at 0x000001FF32E01030>, {'gold': '627179219877959b5684f59316f846df', 'gold_doc_chu...8', 'gold_feature_daily': 'c50b8851affeb418fcb824e65099d9be', 'gold_training_set': 'bd80ed585cda944fc9f9d63a63f00316'})
+
+    def test_deleted_ticket_leaves_training_and_rag(built):
+        con, _ = built
+>       assert rows(con, """SELECT count(*) FROM gold_training_set
+                            WHERE snapshot_version = 'v2026-08-16' AND ticket_id = 'T-97'""") == [(0,)]
+E       assert [(1,)] == [(0,)]
+E         
+E         At index 0 diff: (1,) != (0,)
+E         Use -v to get more diff
+
+tests\test_contracts.py:98: AssertionError
+___________________________ test_doc_chunks_unique ____________________________
+
+built = (<_duckdb.DuckDBPyConnection object at 0x000001FF32E01030>, {'gold': '627179219877959b5684f59316f846df', 'gold_doc_chu...8', 'gold_feature_daily': 'c50b8851affeb418fcb824e65099d9be', 'gold_training_set': 'bd80ed585cda944fc9f9d63a63f00316'})
+
+    def test_doc_chunks_unique(built):
+        con, _ = built
+        n, n_distinct = con.execute("""SELECT count(*), count(DISTINCT (ticket_id, chunk_idx))
+                                       FROM gold_doc_chunks""").fetchone()
+>       assert n == n_distinct == 8
+E       assert 9 == 8
+
+tests\test_contracts.py:107: AssertionError
+_____________ test_rerun_old_day_three_times_keeps_gold_checksum ______________
+
+sandbox = WindowsPath('C:/Users/ADMIN/AppData/Local/Temp/pytest-of-ADMIN/pytest-15/lab171')
+
+    def test_rerun_old_day_three_times_keeps_gold_checksum(sandbox):
+        from scripts.rerun_check import rerun_check
+        res = rerun_check(config.RERUN_DAY, write=False, quiet=True)
+>       assert res["ok"], res["runs"]
+E       AssertionError: [('fresh build', {'gold': '627179219877959b5684f59316f846df', 'gold_doc_chunks': 'ab5a2d2b37d7112d72778a26f76f3648', '...', 'gold_feature_daily': '21d1035eba8aaa7a60e7360302f33519', 'gold_training_set': 'bd80ed585cda944fc9f9d63a63f00316'})]
+E       assert False
+
+tests\test_rerun.py:15: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_contracts.py::test_cdc_delete_becomes_tombstone - Assertion...
+FAILED tests/test_contracts.py::test_feature_daily_reconciles_with_full_recompute
+FAILED tests/test_contracts.py::test_late_events_land_in_their_event_day - as...
+FAILED tests/test_contracts.py::test_lookback_covers_measured_lateness - asse...
+FAILED tests/test_contracts.py::test_deleted_ticket_leaves_training_and_rag
+FAILED tests/test_contracts.py::test_doc_chunks_unique - assert 9 == 8
+FAILED tests/test_rerun.py::test_rerun_old_day_three_times_keeps_gold_checksum
+7 failed, 27 passed in 7.89s

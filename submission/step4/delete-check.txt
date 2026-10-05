@@ -1,0 +1,5 @@
+After fresh build and 3 replays of 2026-08-12:
+T-97 Silver (is_deleted, user_id, subject, body, LSN): [(True, None, None, None, 24020000)]
+T-97 latest training rows: 0
+T-97 RAG chunks: 0
+PASS: deleted ticket did not resurrect.

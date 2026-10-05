@@ -23,9 +23,9 @@ SOURCES = {
 }
 
 # How many days back every daily run recomputes gold_feature_daily.
-# Events are produced by our own apps and reach Kafka within seconds, so each
-# run only needs to recompute its own day.
-LOOKBACK_DAYS = 0
+# Measured over 43 Bronze event records: P99 lateness = 3 calendar days.
+# Recompute [day - ceil(P99), day] to include offline events arriving late.
+LOOKBACK_DAYS = 3
 
 EMBEDDING_MODEL_VERSION = "hash-embed-v1"
 CHUNK_WORDS = 40

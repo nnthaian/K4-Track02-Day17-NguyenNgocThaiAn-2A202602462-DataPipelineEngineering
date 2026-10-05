@@ -1,0 +1,4 @@
+u05 on 2026-08-12: n_events=5, n_clicks=3, n_feedback_down=1
+feature checksum: 8630e04a61d10aa963b7a49e148926b0
+full recompute checksum: 8630e04a61d10aa963b7a49e148926b0
+PASS
