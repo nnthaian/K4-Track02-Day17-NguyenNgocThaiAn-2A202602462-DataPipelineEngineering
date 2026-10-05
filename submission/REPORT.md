@@ -5,7 +5,7 @@ Phần phân tích tối đa một trang, không tính output ở phần 5.
 
 - **Họ tên / MSSV:** Nguyễn Ngọc Thái An (2A202602462)
 - **Repo:** https://github.com/nnthaian/K4-Track02-Day17-NguyenNgocThaiAn-2A202602462-DataPipelineEngineering
-- **Commit bài nộp:** 
+- **Commit bài nộp:** `cfcfcdb`
 - **AI đã dùng và phạm vi hỗ trợ (hoặc không dùng):** Codex hỗ trợ đọc, feedback và cập nhật report.
 - **Nguồn tham khảo:** README, hướng dẫn và mã nguồn của repo; không dùng nguồn ngoài.
 
